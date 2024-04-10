@@ -56,7 +56,9 @@ io.on("connection", (socket) => {
     }
     const playerRoom = [...socket.rooms.values()].find((v) => v.length === 6);
 
+    if (!ROOMS[playerRoom]) ROOMS[playerRoom] = [];
     ROOMS[playerRoom].push(move);
+
     if (ROOMS[playerRoom].length === 2) {
       io.to(playerRoom).emit("game over", ROOMS[playerRoom]);
       delete ROOMS[playerRoom];

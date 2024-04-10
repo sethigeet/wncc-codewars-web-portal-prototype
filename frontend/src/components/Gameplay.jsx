@@ -36,11 +36,10 @@ export function Gameplay({ roomId }) {
         <div className="flex-1 grid place-items-center">
           {!moveSent && (
             <SelectMove
-              selectedMove={selectedMove}
-              setSelectedMove={setSelectedMove}
-              sendMove={(selectedMove) => {
+              sendMove={(move) => {
+                setSelectedMove(move);
                 setMoveSent(true);
-                socket.emit("play move", selectedMove);
+                socket.emit("play move", move);
               }}
             />
           )}
