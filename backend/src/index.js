@@ -4,7 +4,11 @@ import { Server } from "socket.io";
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 app.get("/status", (req, res) => {
   res.json({ status: "up" });
@@ -46,17 +50,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("play move", (move) => {
-    let playerRoom;
-    for (const room in io.sockets.adapter.rooms) {
-      if (room.has(socket.id)) {
-        playerRoom = room;
-        break;
-      }
-    }
-    if (playerRoom === undefined) {
+    if (socket.rooms.length === 1) {
       io.to(socket.id).emit("not in room");
       return;
     }
+    const playerRoom = [...socket.rooms.values()].find((v) => v.length === 6);
 
     ROOMS[playerRoom].push(move);
     if (ROOMS[playerRoom].length === 2) {
