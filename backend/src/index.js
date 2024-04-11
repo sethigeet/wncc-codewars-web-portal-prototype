@@ -10,6 +10,8 @@ const io = new Server(server, {
   },
 });
 
+const ROOM_ID_LEN = 6;
+
 app.get("/status", (req, res) => {
   res.json({ status: "up" });
 });
@@ -23,7 +25,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("create room", () => {
-    const room = Math.random().toString(36).substring(7);
+    let room;
+    do {
+      room = Math.random()
+        .toString(36)
+        .substring(ROOM_ID_LEN + 1);
+    } while (room.length !== ROOM_ID_LEN);
+
     console.log("create room", room);
     socket.join(room);
     io.to(socket.id).emit("room joined", room);
@@ -54,7 +62,9 @@ io.on("connection", (socket) => {
       io.to(socket.id).emit("not in room");
       return;
     }
-    const playerRoom = [...socket.rooms.values()].find((v) => v.length === 6);
+    const playerRoom = [...socket.rooms.values()].find(
+      (v) => v.length === ROOM_ID_LEN
+    );
 
     if (!ROOMS[playerRoom]) ROOMS[playerRoom] = [];
     ROOMS[playerRoom].push(move);
